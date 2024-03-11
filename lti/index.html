@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+		<script src="//items.learnosity.com/?v2022.2.LTS"></script>
+		<script type="text/javascript">
+			A5 = {};
+			A5.LMS_APIS = "Console";
+			A5.ENGINE_ROOT = "../engine/";
+			A5.SKIN_URL = "sk/";
+			A5.SKIN_TYPE = "git";
+			A5.TOOLBELT_URL = "//avallain-toolbelt-prod.avallain.net";
+			A5.GEOGEBRA = "//author-engine-production.avallain.net/geogebra/v5-0-672-0/HTML5/5.0/web/";
+			A5.MATHJAX = "//author-engine-production.avallain.net/mathjax/2.7.1";
+			A5.CKEDITOR_RELATIVE = true;
+
+			A5.WIRIS_QUIZ_VALIDATION_SERVICE_URL = "";
+			A5.AUDIO_FORMATS = "mp3";
+			A5.ITEM_BANK_API_URL = "https://api-avallain-author-dev.avallain.net/api/v2/items_bank_items_for_engine";
+			A5.WIRIS_QUIZ_LIBRARY_RESOURCES_URL = "//author-engine-production.avallain.net/wirisquiz/4.4.2/resources";
+			A5.VIDEO_FORMATS = "hls,mp4";
+			A5.ACUDA = "";
+
+			A5.AUDIO_URL_BUILDER = function (id, format) {
+				var cdn =
+					id.indexOf("r5_") === 0
+						? "http://lnr-runtime-assets.s3-website-eu-west-1.amazonaws.com"
+						: "https://ori-author-prod-assets.avallain.net";
+				return cdn + "/" + id + "." + format;
+			};
+
+			A5.VIDEO_URL_BUILDER = function (id, format) {
+				if (format == "hls") {
+					return "https://ori-author-prod-assets.avallain.net/" + id + "/hls_playlist.m3u8";
+				} else {
+					return "https://ori-author-prod-assets.avallain.net/" + id + "." + format;
+				}
+			};
+		</script>
+		<script type="text/javascript" src="data.js"></script>
+
+		<title>Digital pre-test</title>
+
+		<script type="text/javascript">
+			function a5_init($) {
+				window.LOInfo = {};
+
+				window.LOInfo.assessmentOptions = "";
+				window.LOInfo.LOOptions =
+					'<options data-author="options-v2"><option id="383"><key>off</key></option><option id="433"><key>off</key></option><option id="341"><key>on</key></option><option id="311"><key>always</key></option><option id="512"><key>marking_and_feedback</key></option><option id="384"><key>{&amp;quot;items&amp;quot;:[],&amp;quot;selection&amp;quot;:&amp;quot;off&amp;quot;}</key></option><option id="373"><key>off</key></option><option id="047"><key>false</key></option><option id="379"><key></key><value>{"items":[{"label":""},{"label":"time_left"},{"label":"off"},{"label":"force_submit"},{"label":""},{"label":""},{"label":""},{"label":""},{"label":""},{"label":""}],"selection":""}</value></option><option id="346"><key>null</key></option><option id="347"><key>null</key></option><option id="348"><key>null</key></option><option id="349"><key>null</key></option><option id="335"><key>off</key></option><option id="342"><key>off</key></option><option id="440"><key></key></option><option id="375"><key>{"items":[]}</key></option><option id="432"><key>off</key></option><option id="025"><key>true</key></option><option id="050"><key>auto</key></option><option id="313"><key>off</key></option><option id="521"><key>off</key></option><option id="046"><key>1_point_action</key></option><option id="312"><key>on</key></option><option id="336"><key>always</key></option><option id="371"><key>off</key></option><option id="522"><key>off</key></option><option id="523"><key>off</key></option><option id="334"><key>off</key><value>{&amp;quot;items&amp;quot;:[],&amp;quot;selection&amp;quot;:&amp;quot;off&amp;quot;}</value></option><option id="352"><key>["Scientific_Characters","Ancient_Greek","Arithmetic_Operators"]</key></option><option id="315"><key>1</key></option><option id="505"><key>off</key></option><option id="351"><key>["Scientific_Characters","Ancient_Greek","MathML"]</key></option><option id="385"><key>off</key></option><option id="391"><key>last</key></option><option id="393"><key>["2","9","4","3"]</key></option><option id="418"><key>["ebook"]</key></option><option id="458"><key>off</key></option><option id="528"><key>on</key></option><option id="550"><key>200</key></option><option id="560"><key>["2","9","4","5","3","6"]</key></option></options>';
+				window.LOInfo.mode = "Normal";
+				window.LOInfo.title = "Digital pre-test";
+
+				window.LOInfo.lotype = "Standard";
+				window.LOInfo.mediaURL = "";
+				window.LOInfo.toolBeltURL = "//avallain-toolbelt-prod.avallain.net";
+				window.LOInfo.UID = "ori-prod_516497";
+				window.LOInfo.geoGebra = "//author-engine-production.avallain.net/geogebra/v5-0-672-0/HTML5/5.0/web/";
+				window.LOInfo.assetCDNURL = "https://ori-author-prod-assets.avallain.net";
+				window.LOInfo.name = "ss22_us_3_01_03ass_01_002_dprt_en";
+				window.LOInfo.mathJAX = "//author-engine-production.avallain.net/mathjax/2.7.1";
+				window.LOInfo.ID = "516497";
+				window.LOInfo.lang = "en";
+
+				var engine = new a5.Engine();
+				engine.initialize();
+			}
+		</script>
+		<style>
+			html,
+			body {
+				height: 100%;
+				margin: 0;
+				padding: 0;
+				border: 0;
+			}
+
+			.loader {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				width: 100%;
+				position: fixed;
+				top: 0;
+				bottom: 0;
+				/*background-color: #182B37;*/
+				background-color: #ffffff;
+				z-index: 9999;
+			}
+
+			.loader__logo {
+				position: relative;
+				display: block;
+				width: 180px;
+				height: 180px;
+				background: url(sk/engineBootstrap/../css/images/origo-logo.svg) center center no-repeat;
+			}
+
+			.loader__bar {
+				position: relative;
+				background-color: #eee;
+				width: 230px;
+				height: 5px;
+				margin-top: 46px;
+				margin-bottom: 30px;
+				border-radius: 3px;
+				overflow: hidden;
+			}
+
+			.loader__bar::before {
+				content: "";
+				display: block;
+				height: 100%;
+				position: absolute;
+				top: 0;
+				/*background-color: #26a69a;*/
+				background-color: #888888;
+				animation: load 2s ease-in-out infinite alternate;
+				border-radius: 3px;
+			}
+
+			@keyframes load {
+				0%,
+				2% {
+					left: -2%;
+					right: 96%;
+				}
+
+				40% {
+					left: -2%;
+				}
+
+				98%,
+				100% {
+					left: 96%;
+					right: -2%;
+				}
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="learnosity_assess"></div>
+
+		<script type="text/javascript" src="../engine/player.js"></script>
+		<script>
+			window.onload = function () {
+				console.log("Requesting learnosity request");
+				const loadLearnosityAssessment = async () => {
+					const response = await fetch("http://localhost:9090/learnosity/request", {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+						},
+					});
+					const myJson = await response.json(); //extract JSON from the http response
+
+					const itemsApp = LearnosityItems.init(myJson, {
+						readyListener() {
+							console.log("ready");
+						},
+						errorListener(err) {
+							console.log("error", err);
+						},
+					});
+				};
+				loadLearnosityAssessment();
+			};
+		</script>
+	</body>
+</html>

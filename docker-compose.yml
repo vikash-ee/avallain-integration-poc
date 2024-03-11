@@ -1,0 +1,69 @@
+version: '3.2'
+
+volumes:
+  static:
+      driver: local
+
+services:
+  hosting:
+    image: avallain-poc/hosting:0.0.1
+    container_name: hosting
+    restart: unless-stopped
+    networks:
+      - origo
+    ports:
+      - 9090:9090
+    environment:
+      - STATIC_DIR=/etc/share/static
+      - LTI_SHARED_DIR=/etc/share/lti
+      - STATIC_SERVER_HOST=http://localhost:8000
+      - LRS_SERVER_HOST=http://localhost:8080
+      - LRS_KEY=2c3fdcf87a5f7636365aa0f82e48cd47d31c65eba219392cf2b7adfe57af9ae7
+      - LRS_SECRET=787ad76b32c879f9a9803e9dad2b8617a6d1b627cb6e9bb25e7d830f76de9d06
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://avallaintest.postgres.database.azure.com:5432/dlptest
+      - SPRING_DATASOURCE_USERNAME=avallaintest
+      - SPRING_DATASOURCE_PASSWORD=Password@123
+    volumes:
+      - ./lti:/etc/share/lti
+      - static:/etc/share/static
+
+  webserver:
+    image: halverneus/static-file-server:latest
+    container_name: webserver
+    restart: unless-stopped
+    networks:
+      - origo
+    ports:
+      - 8000:8000
+    environment:
+      - PORT=8000
+    volumes:
+      - static:/web
+      - ./engines/flare_engine:/web/flare_engine
+      - ./engines/sie_engine:/web/sie_engine
+
+  sqllrs:
+    image: yetanalytics/lrsql:latest
+    container_name: sqllrs
+    restart: unless-stopped
+    networks:
+      - origo
+    ports:
+      - 8080:8080
+    environment:
+      - LRSQL_API_KEY_DEFAULT=my_key
+      - LRSQL_API_SECRET_DEFAULT=my_secret
+      - LRSQL_ADMIN_USER_DEFAULT=my_username
+      - LRSQL_ADMIN_PASS_DEFAULT=my_password
+      - LRSQL_DB_HOST=avallaintest.postgres.database.azure.com
+      - LRSQL_DB_PORT=5432
+      - LRSQL_DB_NAME=avallainadmin
+      - LRSQL_DB_USER=avallaintest
+      - LRSQL_DB_PASSWORD=Password@123
+      - LRSQL_ALLOW_ALL_ORIGINS=true
+    command:
+      - /lrsql/bin/run_postgres.sh
+
+networks:
+  origo:
+    driver: bridge

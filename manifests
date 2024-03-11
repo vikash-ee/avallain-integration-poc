@@ -1,0 +1,323 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose.yml --out ./manifests convert
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: hosting
+  name: hosting
+spec:
+  ports:
+    - name: "9090"
+      port: 9090
+      targetPort: 9090
+  selector:
+    io.kompose.service: hosting
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose.yml --out ./manifests convert
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: sqllrs
+  name: sqllrs
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+  selector:
+    io.kompose.service: sqllrs
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose.yml --out ./manifests convert
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: webserver
+  name: webserver
+spec:
+  ports:
+    - name: "8000"
+      port: 8000
+      targetPort: 8000
+  selector:
+    io.kompose.service: webserver
+status:
+  loadBalancer: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose.yml --out ./manifests convert
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: hosting
+  name: hosting
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: hosting
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file docker-compose.yml --out ./manifests convert
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/avallain-integration-poc-origo: "true"
+        io.kompose.service: hosting
+    spec:
+      containers:
+        - env:
+            - name: LRS_SERVER_HOST
+              value: http://localhost:8080
+            - name: LTI_SHARED_DIR
+              value: /etc/share/lti
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: Password@123
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://avallaintest.postgres.database.azure.com:5432/dlptest
+            - name: SPRING_DATASOURCE_USERNAME
+              value: avallaintest
+            - name: STATIC_DIR
+              value: /etc/share/static
+            - name: STATIC_SERVER_HOST
+              value: http://localhost:8000
+          image: avallain-poc/hosting:0.0.1
+          name: hosting
+          ports:
+            - containerPort: 9090
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/share/lti
+              name: hosting-claim0
+            - mountPath: /etc/share/static
+              name: static
+      restartPolicy: Always
+      volumes:
+        - name: hosting-claim0
+          persistentVolumeClaim:
+            claimName: hosting-claim0
+        - name: static
+          persistentVolumeClaim:
+            claimName: static
+status: {}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: hosting-claim0
+  name: hosting-claim0
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+status: {}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: static
+  name: static
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: avallain-integration-poc-origo
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/avallain-integration-poc-origo: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/avallain-integration-poc-origo: "true"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose.yml --out ./manifests convert
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: sqllrs
+  name: sqllrs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: sqllrs
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file docker-compose.yml --out ./manifests convert
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/avallain-integration-poc-origo: "true"
+        io.kompose.service: sqllrs
+    spec:
+      containers:
+        - args:
+            - /lrsql/bin/run_postgres.sh
+          env:
+            - name: LRSQL_ADMIN_PASS_DEFAULT
+              value: my_password
+            - name: LRSQL_ADMIN_USER_DEFAULT
+              value: my_username
+            - name: LRSQL_ALLOW_ALL_ORIGINS
+              value: "true"
+            - name: LRSQL_API_KEY_DEFAULT
+              value: my_key
+            - name: LRSQL_API_SECRET_DEFAULT
+              value: my_secret
+            - name: LRSQL_DB_HOST
+              value: avallaintest.postgres.database.azure.com
+            - name: LRSQL_DB_NAME
+              value: avallainadmin
+            - name: LRSQL_DB_PASSWORD
+              value: Password@123
+            - name: LRSQL_DB_PORT
+              value: "5432"
+            - name: LRSQL_DB_USER
+              value: avallaintest
+          image: yetanalytics/lrsql:latest
+          name: sqllrs
+          ports:
+            - containerPort: 8080
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose.yml --out ./manifests convert
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: webserver
+  name: webserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: webserver
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file docker-compose.yml --out ./manifests convert
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/avallain-integration-poc-origo: "true"
+        io.kompose.service: webserver
+    spec:
+      containers:
+        - env:
+            - name: PORT
+              value: "8000"
+          image: halverneus/static-file-server:latest
+          name: webserver
+          ports:
+            - containerPort: 8000
+          resources: {}
+          volumeMounts:
+            - mountPath: /web
+              name: static
+            - mountPath: /web/flare_engine
+              name: webserver-claim1
+            - mountPath: /web/sie_engine
+              name: webserver-claim2
+      restartPolicy: Always
+      volumes:
+        - name: static
+          persistentVolumeClaim:
+            claimName: static
+        - name: webserver-claim1
+          persistentVolumeClaim:
+            claimName: webserver-claim1
+        - name: webserver-claim2
+          persistentVolumeClaim:
+            claimName: webserver-claim2
+status: {}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: webserver-claim1
+  name: webserver-claim1
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+status: {}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: webserver-claim2
+  name: webserver-claim2
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+status: {}
+

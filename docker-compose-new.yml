@@ -1,0 +1,94 @@
+version: '3.2'
+
+volumes:
+  static:
+      driver: local
+  db:
+    driver: local
+
+services:
+  hosting:
+    image: avallain-poc/hosting:0.0.1
+    container_name: hosting
+    restart: unless-stopped
+    networks:
+      - origo
+    ports:
+      - 9090:9090
+    environment:
+      - STATIC_DIR=/etc/share/static
+      - LTI_SHARED_DIR=/etc/share/lti
+      - STATIC_SERVER_HOST=http://localhost:8000
+      - LRS_SERVER_HOST=http://localhost:8080
+      - LRS_SECRET=my_secret
+      - LRS_KEY=my_key
+      # - SPRING_DATASOURCE_URL=jdbc:postgresql://avallaintest.postgres.database.azure.com:5432/dlptest
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/dlptest
+      # - SPRING_DATASOURCE_USERNAME=avallaintest
+      # - SPRING_DATASOURCE_PASSWORD=Password@123
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    volumes:
+      - ./lti:/etc/share/lti
+      - static:/etc/share/static
+    depends_on:
+      - postgres
+
+  webserver:
+    image: halverneus/static-file-server:latest
+    container_name: webserver
+    restart: unless-stopped
+    networks:
+      - origo
+    ports:
+      - 8000:8000
+    environment:
+      - PORT=8000
+    volumes:
+      - static:/web
+      - ./engines/flare_engine:/web/flare_engine
+      - ./engines/sie_engine:/web/sie_engine
+
+  sqllrs:
+    image: yetanalytics/lrsql:latest
+    platform: linux/amd64
+    container_name: sqllrs
+    restart: unless-stopped
+    networks:
+      - origo
+    ports:
+      - 8080:8080
+    environment:
+      - LRSQL_API_KEY_DEFAULT=my_key
+      - LRSQL_API_SECRET_DEFAULT=my_secret
+      - LRSQL_ADMIN_USER_DEFAULT=my_username
+      - LRSQL_ADMIN_PASS_DEFAULT=my_password
+      - LRSQL_DB_HOST=postgres
+      - LRSQL_DB_PORT=5432
+      - LRSQL_DB_NAME=dlptest
+      - LRSQL_DB_USER=postgres
+      - LRSQL_DB_PASSWORD=postgres
+      - LRSQL_ALLOW_ALL_ORIGINS=true
+    command:
+      - /lrsql/bin/run_postgres.sh
+
+  postgres:
+    image: postgres:15.3
+    container_name: postgres
+    restart: always
+    networks:
+      - origo
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=dlptest
+      - PGDATA=/var/lib/postgresql/data/
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data/
+      # - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+networks:
+  origo:
+    driver: bridge
